@@ -38,9 +38,9 @@ const createCartItemElement = ({ sku, name, salePrice }) => {
   return li;
 };
 
-async function resultAPI() {
-  const resultArr = await fetchProducts('computador');
-  resultArr.forEach(({ id, title, thumbnail }) => {
+async function showApiData() {
+  const data = await fetchProducts('computador');
+  data.results.forEach(({ id, title, thumbnail }) => {
     const obj = {
       sku: id,
       name: title,
@@ -51,4 +51,4 @@ async function resultAPI() {
   });
 }
 
-window.onload = () => resultAPI();
+window.onload = () => showApiData();
