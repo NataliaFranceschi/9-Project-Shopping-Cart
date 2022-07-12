@@ -1,5 +1,5 @@
 const cartItemClickListener = (event) => {
-  //apagar
+  event.target.remove();
 };
 
 const createCartItemElement = ({ sku, name, salePrice }) => {
