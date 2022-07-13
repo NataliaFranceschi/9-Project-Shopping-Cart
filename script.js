@@ -77,12 +77,17 @@ const createProductItemElement = ({ sku, name, image }) => {
   section.appendChild(createCustomElement('span', 'item__title', name));
   section.appendChild(createProductImageElement(image));
   section.appendChild(createCustomElement('button', 'item__add', 'Adicionar ao carrinho!'));
-
+  
   return section;
+};
+
+const loading = () => {
+  document.querySelector('.loading').remove();
 };
 
 async function productList() {
   const data = await fetchProducts('computador');
+  loading(); 
   data.results.forEach(({ id, title, thumbnail }) => {
     const obj = {
       sku: id,
