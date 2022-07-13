@@ -4,19 +4,19 @@ function total() {
   const items = document.querySelectorAll('.cart__item');
   const p = document.getElementsByTagName('p')[0];
   if (items) {
-    const price = Array.from(items).reduce((acc, item) => {
+    p.innerHTML = Array.from(items).reduce((acc, item) => {
       const arr = item.innerText.split('|');
       return acc + Number(arr[2].match(/\d+/g).join('.'));
     }, 0);
-    p.innerHTML = `Subtotal: R$ ${price}`;
   } 
 }
 
 function deleteItems() {
   const li = document.getElementsByClassName('cart__item');
-  while (li !== undefined) {
+  while (li[0] !== undefined) {
     li[0].remove();
     total();
+    saveCartItems(ol.innerHTML);
   }
 }
 
@@ -24,7 +24,7 @@ document.querySelector('.empty-cart').addEventListener('click', deleteItems);
 
 const cartItemClickListener = (event) => {
   event.target.remove();
-  saveCartItems(ol);
+  saveCartItems(ol.innerHTML);
   total();
 };
 
@@ -48,7 +48,7 @@ async function cartList({ target }) {
     };
     const li = createCartItemElement(obj);
     ol.appendChild(li);
-    saveCartItems(ol);
+    saveCartItems(ol.innerHTML);
     total();
   }
 
@@ -95,10 +95,11 @@ async function productList() {
 }
 
 function getItem() {
+  ol.innerHTML = getSavedCartItems();
   const items = document.querySelectorAll('.cart__item');
   if (items) {
     Array.from(items).forEach((item) => item.addEventListener('click', cartItemClickListener));
   } 
 }
 
-window.onload = () => { productList(); getSavedCartItems(); getItem(); total(); };
+window.onload = () => { productList(); getItem(); total(); };
