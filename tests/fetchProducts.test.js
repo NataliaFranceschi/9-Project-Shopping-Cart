@@ -22,7 +22,6 @@ describe('1 - Teste a função fetchProducts', () => {
     expect(await fetchProducts('computador')).toEqual(computadorSearch)
   })
   test("fetchProducts quando chamada sem argumento, retorna uma mensagem de erro", async () => {
-    expect.assertions(1);
     try {
       await fetchProducts();
     } catch (error) {
