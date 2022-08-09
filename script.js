@@ -5,8 +5,8 @@ function total() {
   const p = document.getElementsByTagName('p')[0];
   if (items) {
     p.innerHTML = Array.from(items).reduce((acc, item) => {
-      const arr = item.innerText.split('|');
-      return acc + Number(arr[2].match(/\d+/g).join('.'));
+      const arr = item.innerText.split(' ');
+      return acc + Number(arr[arr.length - 1]);
     }, 0);
   } 
 }
@@ -22,35 +22,18 @@ function deleteItems() {
 
 document.querySelector('.empty-cart').addEventListener('click', deleteItems);
 
-const cartItemClickListener = (event) => {
-  event.target.remove();
+const cartItemClickListener = ({ target }) => {
+  target.parentElement.remove();
   saveCartItems(ol.innerHTML);
   total();
 };
 
-const createCartItemElement = ({ sku, name, salePrice }) => {
-  const li = document.createElement('li');
-  li.className = 'cart__item';
-  li.innerText = `SKU: ${sku} | NAME: ${name} | PRICE: $${salePrice}`;
-  li.addEventListener('click', cartItemClickListener);
-  return li;
+const createProductImageElement = (imageSource) => {
+  const img = document.createElement('img');
+  img.className = 'item__image';
+  img.src = imageSource;
+  return img;
 };
-
-const getSkuFromProductItem = (item) => item.querySelector('span.item__sku').innerText;
-
-async function cartList({ target }) {
-  const data = await fetchItem(getSkuFromProductItem(target.parentElement));
-  const { id, title, price } = data;
-    const obj = {
-      sku: id,
-      name: title,
-      salePrice: price,
-    };
-    const li = createCartItemElement(obj);
-    ol.appendChild(li);
-    saveCartItems(ol.innerHTML);
-    total();
-  }
 
 const createCustomElement = (element, className, innerText) => {
   const e = document.createElement(element);
@@ -62,20 +45,41 @@ const createCustomElement = (element, className, innerText) => {
   return e;
 };
 
-const createProductImageElement = (imageSource) => {
-  const img = document.createElement('img');
-  img.className = 'item__image';
-  img.src = imageSource;
-  return img;
+const createCartItemElement = ({ name, salePrice, image }) => {
+  const li = document.createElement('li');
+  li.className = 'cart__item';
+  li.appendChild(createProductImageElement(image));
+  li.appendChild(createCustomElement('span', 'itemCart__name', name));
+  li.appendChild(createCustomElement('span', 'itemCart__price', `R$ ${salePrice}`));
+  li.addEventListener('click', cartItemClickListener);
+
+  return li;
 };
 
-const createProductItemElement = ({ sku, name, image }) => {
+const getSkuFromProductItem = (item) => item.querySelector('span.item__sku').innerText;
+
+async function cartList({ target }) {
+  const data = await fetchItem(getSkuFromProductItem(target.parentElement));
+  const { title, price, thumbnail } = data;
+    const obj = {
+      name: title,
+      salePrice: price,
+      image: thumbnail,
+    };
+    const li = createCartItemElement(obj);
+    ol.appendChild(li);
+    saveCartItems(ol.innerHTML);
+    total();
+  }
+
+const createProductItemElement = ({ sku, name, image, price }) => {
   const section = document.createElement('section');
   section.className = 'item';
 
   section.appendChild(createCustomElement('span', 'item__sku', sku));
-  section.appendChild(createCustomElement('span', 'item__title', name));
   section.appendChild(createProductImageElement(image));
+  section.appendChild(createCustomElement('span', 'item__title', name));
+  section.appendChild(createCustomElement('span', 'item__price', `R$ ${price}`));
   section.appendChild(createCustomElement('button', 'item__add', 'Adicionar ao carrinho!'));
   
   return section;
@@ -88,11 +92,12 @@ const loading = () => {
 async function productList() {
   const data = await fetchProducts('computador');
   loading(); 
-  data.results.forEach(({ id, title, thumbnail }) => {
+  data.results.forEach(({ id, title, thumbnail, price }) => {
     const obj = {
       sku: id,
       name: title,
       image: thumbnail,
+      price,
     };
     const section = createProductItemElement(obj);
     document.querySelector('.items').appendChild(section);
